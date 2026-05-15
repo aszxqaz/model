@@ -27,8 +27,8 @@ func main() {
 
 	previous := model.CalcPreviousAll(klines, p.PreviousPeriod, p.WeightFunc)
 
-	p.Volumes = span.New(model.GetVolumesSpaced(previous, 32)...)
-	p.Takers = span.New(model.GetTakersSpaced(previous, 32)...)
+	p.Volumes = span.New(model.GetVolumesSpaced(previous, 4)...)
+	p.Takers = span.New(model.GetTakersSpaced(previous, 4)...)
 
 	Run(p, func(i Input) error {
 		now := time.Now()

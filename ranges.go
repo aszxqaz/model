@@ -4,7 +4,7 @@ import (
 	"slices"
 )
 
-func GetVolumesSpaced(previous []PreviousData, size int) []float64 {
+func GetVolumesSpaced(previous []PreviousData, depth int) []float64 {
 	slices.SortFunc(previous, func(a, b PreviousData) int {
 		if a.Volume > b.Volume {
 			return 1
@@ -12,18 +12,18 @@ func GetVolumesSpaced(previous []PreviousData, size int) []float64 {
 		return -1
 	})
 
-	step := len(previous) / (size + 1)
+	indeces := Divide(0, len(previous)-1, depth)
 
 	volumes := []float64{}
 
-	for i := range size + 1 {
-		volumes = append(volumes, previous[i*step].Volume)
+	for _, i := range indeces {
+		volumes = append(volumes, previous[i].Volume)
 	}
 
 	return volumes
 }
 
-func GetTakersSpaced(previous []PreviousData, size int) []float64 {
+func GetTakersSpaced(previous []PreviousData, depth int) []float64 {
 	slices.SortFunc(previous, func(a, b PreviousData) int {
 		if a.TakerShare > b.TakerShare {
 			return 1
@@ -31,17 +31,27 @@ func GetTakersSpaced(previous []PreviousData, size int) []float64 {
 		return -1
 	})
 
-	step := len(previous) / (size + 1)
+	indeces := Divide(0, len(previous)-1, depth)
 
 	takers := []float64{}
 
-	for i := range size + 1 {
-		takers = append(takers, previous[i*step].TakerShare)
+	for _, i := range indeces {
+		takers = append(takers, previous[i].TakerShare)
 	}
 
 	return takers
 }
 
-// 1 2 3 4 5 6 7 8 9  // 4
-// 1   3   5   7   9
-// 0   2   4   6   8
+func Divide(left, right, depth int) []int {
+	if depth == 0 {
+		return []int{left, right}
+	}
+
+	mid := (left + right) / 2
+
+	leftPart := Divide(left, mid, depth-1)
+	rightPart := Divide(mid, right, depth-1)
+
+	// remove duplicate midpoint
+	return append(leftPart[:len(leftPart)-1], rightPart...)
+}
