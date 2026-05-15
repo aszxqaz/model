@@ -25,4 +25,5 @@ func main() {
 	fmt.Println("Size2: ", m.Size2())
 	fmt.Println("Size3: ", m.Size3())
 	fmt.Println("Size4: ", m.Size4())
+	fmt.Println(m.Probs)
 }

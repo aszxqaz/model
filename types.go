@@ -1,14 +1,20 @@
 package model
 
-import "time"
+import (
+	"time"
+
+	"github.com/aszxqaz/model/span"
+)
 
 type Params struct {
-	SecondsMin int       `json:"seconds_min"`
-	SecondsMax int       `json:"seconds_max"`
-	TargetMin  int       `json:"target_min"`
-	TargetMax  int       `json:"target_max"`
-	Volumes    []float64 `json:"volumes"`
-	Takers     []float64 `json:"takers"`
+	SecondsMin     int       `json:"seconds_min"`
+	SecondsMax     int       `json:"seconds_max"`
+	TargetMin      int       `json:"target_min"`
+	TargetMax      int       `json:"target_max"`
+	PreviousPeriod int       `json:"previous_period"`
+	Volumes        span.Span `json:"volumes"`
+	Takers         span.Span `json:"takers"`
+	WeightFunc     func(i, n int) float64
 }
 
 type Model struct {
@@ -16,12 +22,6 @@ type Model struct {
 	Probs   [][][][]byte
 	Files   []string
 	Created time.Time
-}
-
-type kline struct {
-	Close       float64
-	Volume      float64
-	TakerVolume float64
 }
 
 func (p *Params) SecondsCount() int {
@@ -34,12 +34,4 @@ func (p *Params) TargetsCount() int {
 	}
 
 	return p.TargetMax - p.TargetMin + 1
-}
-
-func (p *Params) VolumesCount() int {
-	return len(p.Volumes) - 1
-}
-
-func (p *Params) TakersCount() int {
-	return len(p.Takers) - 1
 }

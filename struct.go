@@ -5,47 +5,46 @@ import (
 	"fmt"
 )
 
-func (m *Model) GetProbability(secs int, target int, volume float64, taker float64) (float64, error) {
+type Prob struct {
+	Probability float64
+	Frequency   float64
+}
+
+func (m *Model) GetProbability(secs int, target int, volume float64, taker float64) (*Prob, error) {
 	if secs < m.Params.SecondsMin || secs > m.Params.SecondsMax {
 		msg := fmt.Sprintf("seconds out of range %d..%d", m.Params.SecondsMin, m.Params.SecondsMax)
-		return 0, errors.New(msg)
+		return nil, errors.New(msg)
 	}
 
 	if target < m.Params.TargetMin || target > m.Params.TargetMax {
 		msg := fmt.Sprintf("target out of range %d..%d", m.Params.TargetMin, m.Params.TargetMax)
-		return 0, errors.New(msg)
+		return nil, errors.New(msg)
 	}
 
 	if target == 0 {
-		return 0, errors.New("target is zero")
+		return nil, errors.New("target is zero")
 	}
 
 	volumes := m.Params.Volumes
-	volumeMin := volumes[0]
-	volumeMax := volumes[len(volumes)-1]
-
-	if volume < volumeMin || volume > volumeMax {
-		msg := fmt.Sprintf("volume out of range %.2f .. %.2f", volumeMin, volumeMax)
-		return 0, errors.New(msg)
+	if !volumes.Includes(volume) {
+		msg := fmt.Sprintf("volume out of range %.2f .. %.2f", volumes.Min(), volumes.Max())
+		return nil, errors.New(msg)
 	}
 
 	takers := m.Params.Takers
-	takerMin := takers[0]
-	takerMax := takers[len(takers)-1]
-
-	if taker < takerMin || taker > takerMax {
-		msg := fmt.Sprintf("taker out of range %.2f .. %.2f", takerMin, takerMax)
-		return 0, errors.New(msg)
+	if !takers.Includes(taker) {
+		msg := fmt.Sprintf("taker out of range %.2f .. %.2f", takers.Min(), takers.Max())
+		return nil, errors.New(msg)
 	}
 
-	vi := IndexClosestRange(volume, volumes)
+	vi := volumes.IndexOf(volume)
 	if vi == -1 {
-		return 0, errors.New("volume not found")
+		return nil, errors.New("volume not found")
 	}
 
-	ti := IndexClosestRange(taker, takers)
+	ti := takers.IndexOf(taker)
 	if ti == -1 {
-		return 0, errors.New("taker not found")
+		return nil, errors.New("taker not found")
 	}
 
 	ri := target - m.Params.TargetMin
@@ -55,9 +54,13 @@ func (m *Model) GetProbability(secs int, target int, volume float64, taker float
 
 	si := secs - m.Params.SecondsMin
 
-	prob := m.Probs[si][ri][vi][ti]
+	p := m.Probs[si][ri][vi][ti]
 
-	return float64(prob) / 255.0, nil
+	// fmt.Println(p[1])
+
+	return &Prob{
+		Probability: byteToFraction(p),
+	}, nil
 }
 
 func (m *Model) Size() int {

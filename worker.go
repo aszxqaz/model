@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"math"
 	"runtime"
+
+	"github.com/aszxqaz/model/kline"
 )
 
 type jobIn struct {
@@ -26,11 +28,11 @@ func verifyProbes(p Params, b [][][][]byte) error {
 			return errors.New("targets count mismatch")
 		}
 		for i2 := range b[i1] {
-			if len(b[i1][i2]) != p.VolumesCount() {
+			if len(b[i1][i2]) != p.Volumes.Size() {
 				return errors.New("volumes count mismatch")
 			}
 			for i3 := range b[i1][i2] {
-				if len(b[i1][i2][i3]) != p.TakersCount() {
+				if len(b[i1][i2][i3]) != p.Takers.Size() {
 					return errors.New("takers count mismatch")
 				}
 			}
@@ -39,12 +41,12 @@ func verifyProbes(p Params, b [][][][]byte) error {
 	return nil
 }
 
-func calculateProbs(p Params, klines []kline) [][][][]byte {
+func calculateProbs(p Params, klines []kline.Kline) [][][][]byte {
 	freqs := make([][][][]byte, p.SecondsCount())
 
 	slog.Info("Calculating consequtive data...")
 
-	conseq := getConsequtiveData(klines)
+	conseq := CalcPreviousAll(klines, p.PreviousPeriod, p.WeightFunc)
 
 	slog.Info("Assigning jobs...")
 
@@ -73,7 +75,7 @@ func calculateProbs(p Params, klines []kline) [][][][]byte {
 	return freqs
 }
 
-func worker(p Params, klines []kline, conseq []consequtiveData, in chan jobIn, out chan jobOut) {
+func worker(p Params, klines []kline.Kline, conseq []PreviousData, in chan jobIn, out chan jobOut) {
 	for job := range in {
 		secs := job.Secs
 		a1 := [][][]byte{}
@@ -82,20 +84,19 @@ func worker(p Params, klines []kline, conseq []consequtiveData, in chan jobIn, o
 				continue
 			}
 			a2 := [][]byte{}
-			for vi := range len(p.Volumes) - 1 {
+			for volumeSpan := range p.Volumes.Ranges {
 				a3 := []byte{}
-				for ti := range len(p.Takers) - 1 {
-					prob := calculateProb(
+				for takerSpan := range p.Takers.Ranges {
+					p := CalculateProb(
 						klines,
 						conseq,
 						float64(target),
 						secs,
-						p.Volumes[vi],
-						p.Volumes[vi+1],
-						p.Takers[ti],
-						p.Takers[ti+1],
-					).Prob
-					a3 = append(a3, byte(math.Round(prob*255)))
+						volumeSpan,
+						takerSpan,
+						p.PreviousPeriod,
+					)
+					a3 = append(a3, fractionToByte(p.Probability))
 				}
 				a2 = append(a2, a3)
 			}
@@ -106,4 +107,12 @@ func worker(p Params, klines []kline, conseq []consequtiveData, in chan jobIn, o
 			Secs:  secs,
 		}
 	}
+}
+
+func fractionToByte(f float64) byte {
+	return byte(math.Round(f * 255))
+}
+
+func byteToFraction(b byte) float64 {
+	return float64(b) / 255
 }

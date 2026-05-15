@@ -67,7 +67,8 @@ func main() {
 		if err != nil {
 			fmt.Println("Error: " + err.Error() + "\n")
 		} else {
-			fmt.Printf("prob=%.4f\n\n", prob)
+			fmt.Printf("probability=%.4f\n", prob.Probability)
+			// fmt.Printf("frequency=%.4f\n", prob.Frequency)
 		}
 	}
 

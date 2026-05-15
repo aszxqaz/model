@@ -1,4 +1,4 @@
-package model
+package kline
 
 import (
 	"encoding/csv"
@@ -12,7 +12,7 @@ import (
 	"github.com/valyala/fastjson/fastfloat"
 )
 
-func loadKlines(pattern string) ([]kline, []string, error) {
+func LoadKlines(pattern string) ([]Kline, []string, error) {
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
 		return nil, nil, err
@@ -30,7 +30,7 @@ func loadKlines(pattern string) ([]kline, []string, error) {
 	return prices, matches, nil
 }
 
-func loadSingle(path string) ([]kline, error) {
+func loadSingle(path string) ([]Kline, error) {
 	slog.Info(fmt.Sprintf("Loading klines from %s", path))
 	f, err := os.Open(path)
 	if err != nil {
@@ -45,13 +45,13 @@ func loadSingle(path string) ([]kline, error) {
 		return nil, fmt.Errorf("%s: %w", path, err)
 	}
 
-	out := make([]kline, 0, len(records))
+	out := make([]Kline, 0, len(records))
 	for _, rec := range records {
 		close := fastfloat.ParseBestEffort(rec[4])
 		volume := fastfloat.ParseBestEffort(rec[5])
 		takerVolume := fastfloat.ParseBestEffort(rec[9])
 
-		out = append(out, kline{
+		out = append(out, Kline{
 			Close:       close,
 			Volume:      volume,
 			TakerVolume: takerVolume,
@@ -60,8 +60,8 @@ func loadSingle(path string) ([]kline, error) {
 	return out, nil
 }
 
-func loadClosePricesFromFiles(paths []string) ([]kline, error) {
-	var all []kline
+func loadClosePricesFromFiles(paths []string) ([]Kline, error) {
+	var all []Kline
 	for _, p := range paths {
 		part, err := loadSingle(p)
 		if err != nil {

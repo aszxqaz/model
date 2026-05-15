@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/aszxqaz/model/kline"
 )
 
 func Generate(pattern string, params Params) (*Model, error) {
-	klines, files, err := loadKlines(pattern)
+	klines, files, err := kline.LoadKlines(pattern)
 	if err != nil {
 		slog.Error("Failed to load klines", "error", err)
 		return nil, err
