@@ -37,3 +37,5 @@ func GeometricWeight(a float64) func(i, n int) float64 {
 func EqualWeight(i, n int) float64 {
 	return 1.0 / float64(n)
 }
+
+type WeightFunc func(i, n int) float64

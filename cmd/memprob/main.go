@@ -1,130 +1,116 @@
 package main
 
-import (
-	"bufio"
-	"errors"
-	"fmt"
-	"os"
-	"strconv"
-	"strings"
-	"time"
+// func main() {
+// klines, _, err := kline.LoadKlines("C:/Users/Admin/Documents/binance/klines/*.csv")
+// if err != nil {
+// 	panic(err)
+// }
 
-	"github.com/aszxqaz/model"
-	"github.com/aszxqaz/model/kline"
-	"github.com/aszxqaz/model/span"
-)
+// 	p := model.Params{
+// 		PreviousPeriod: 30,
+// 		WeightFunc:     model.CubicWeight,
+// 	}
 
-func main() {
-	klines, _, err := kline.LoadKlines("C:/Users/Admin/Documents/binance/klines/*.csv")
-	if err != nil {
-		panic(err)
-	}
+// 	previous := model.CalcPreviousAll(klines, p.PreviousPeriod, p.WeightFunc)
 
-	p := model.Params{
-		PreviousPeriod: 30,
-		WeightFunc:     model.CubicWeight,
-	}
+// 	p.Volumes = span.New(model.GetVolumesSpaced(previous, 4)...)
+// 	p.Takers = span.New(model.GetTakersSpaced(previous, 4)...)
 
-	previous := model.CalcPreviousAll(klines, p.PreviousPeriod, p.WeightFunc)
+// 	Run(p, func(i Input) error {
+// 		now := time.Now()
 
-	p.Volumes = span.New(model.GetVolumesSpaced(previous, 4)...)
-	p.Takers = span.New(model.GetTakersSpaced(previous, 4)...)
+// 		volume, ok := p.Volumes.SpanFor(i.Volume)
+// 		if !ok {
+// 			return errors.New("volume not found")
+// 		}
 
-	Run(p, func(i Input) error {
-		now := time.Now()
+// 		taker, ok := p.Takers.SpanFor(i.Taker)
+// 		if !ok {
+// 			return errors.New("taker not found")
+// 		}
 
-		volume, ok := p.Volumes.SpanFor(i.Volume)
-		if !ok {
-			return errors.New("volume not found")
-		}
+// 		prob := model.CalculateProb(
+// 			klines,
+// 			previous,
+// 			i.Target,
+// 			i.Seconds,
+// 			volume,
+// 			taker,
+// 			p.PreviousPeriod,
+// 		)
 
-		taker, ok := p.Takers.SpanFor(i.Taker)
-		if !ok {
-			return errors.New("taker not found")
-		}
+// 		fmt.Printf("\tProbability: %.2f%%\n", prob.Probability*100)
+// 		fmt.Printf("\tDone in %d ms.\n", time.Since(now).Milliseconds())
 
-		prob := model.CalculateProb(
-			klines,
-			previous,
-			i.Target,
-			i.Seconds,
-			volume,
-			taker,
-			p.PreviousPeriod,
-		)
+// 		return nil
+// 	})
+// }
 
-		fmt.Printf("\tProbability: %.2f%%\n", prob.Probability*100)
-		fmt.Printf("\tDone in %d ms.\n", time.Since(now).Milliseconds())
+// type Input struct {
+// 	Target  float64
+// 	Seconds int
+// 	Volume  float64
+// 	Taker   float64
+// }
 
-		return nil
-	})
-}
+// func Run(params model.Params, doFunc func(input Input) error) {
+// 	fmt.Println("\nVolumes: ", params.Volumes)
+// 	fmt.Println("\tSize: ", params.Volumes.Size())
+// 	fmt.Println("Takers: ", params.Takers)
+// 	fmt.Println("\tSize: ", params.Takers.Size())
+// 	fmt.Println("---")
+// 	fmt.Fprintln(os.Stderr, "enter: <target> <seconds> <volume> <taker>")
 
-type Input struct {
-	Target  float64
-	Seconds int
-	Volume  float64
-	Taker   float64
-}
+// 	sc := bufio.NewScanner(os.Stdin)
+// 	for sc.Scan() {
+// 		line := strings.TrimSpace(sc.Text())
+// 		if line == "" {
+// 			continue
+// 		}
+// 		fs := strings.Fields(line)
+// 		if len(fs) != 4 {
+// 			fmt.Fprintln(os.Stderr, "bad input; expected: <target> <seconds> <volume> <taker>")
+// 			continue
+// 		}
 
-func Run(params model.Params, doFunc func(input Input) error) {
-	fmt.Println("\nVolumes: ", params.Volumes)
-	fmt.Println("\tSize: ", params.Volumes.Size())
-	fmt.Println("Takers: ", params.Takers)
-	fmt.Println("\tSize: ", params.Takers.Size())
-	fmt.Println("---")
-	fmt.Fprintln(os.Stderr, "enter: <target> <seconds> <volume> <taker>")
+// 		target, err := strconv.ParseFloat(fs[0], 64)
+// 		if err != nil {
+// 			fmt.Fprintln(os.Stderr, "bad target:", err)
+// 			continue
+// 		}
 
-	sc := bufio.NewScanner(os.Stdin)
-	for sc.Scan() {
-		line := strings.TrimSpace(sc.Text())
-		if line == "" {
-			continue
-		}
-		fs := strings.Fields(line)
-		if len(fs) != 4 {
-			fmt.Fprintln(os.Stderr, "bad input; expected: <target> <seconds> <volume> <taker>")
-			continue
-		}
+// 		seconds, err := strconv.Atoi(fs[1])
+// 		if err != nil || seconds < 1 {
+// 			fmt.Fprintln(os.Stderr, "bad seconds (must be int >= 1)")
+// 			continue
+// 		}
 
-		target, err := strconv.ParseFloat(fs[0], 64)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "bad target:", err)
-			continue
-		}
+// 		volume, err := strconv.ParseFloat(fs[2], 64)
+// 		if err != nil {
+// 			fmt.Fprintln(os.Stderr, "bad volume:", err)
+// 			continue
+// 		}
 
-		seconds, err := strconv.Atoi(fs[1])
-		if err != nil || seconds < 1 {
-			fmt.Fprintln(os.Stderr, "bad seconds (must be int >= 1)")
-			continue
-		}
+// 		taker, err := strconv.ParseFloat(fs[3], 64)
+// 		if err != nil {
+// 			fmt.Fprintln(os.Stderr, "bad taker:", err)
+// 			continue
+// 		}
 
-		volume, err := strconv.ParseFloat(fs[2], 64)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "bad volume:", err)
-			continue
-		}
+// 		err = doFunc(Input{
+// 			Target:  target,
+// 			Seconds: seconds,
+// 			Volume:  volume,
+// 			Taker:   taker,
+// 		})
 
-		taker, err := strconv.ParseFloat(fs[3], 64)
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "bad taker:", err)
-			continue
-		}
+// 		if err != nil {
+// 			fmt.Println("\tError:" + err.Error())
+// 		}
+// 	}
 
-		err = doFunc(Input{
-			Target:  target,
-			Seconds: seconds,
-			Volume:  volume,
-			Taker:   taker,
-		})
-
-		if err != nil {
-			fmt.Println("\tError:" + err.Error())
-		}
-	}
-
-	if err := sc.Err(); err != nil {
-		fmt.Fprintln(os.Stderr, "read stdin:", err)
-		os.Exit(1)
-	}
-}
+// 	if err := sc.Err(); err != nil {
+// 		fmt.Fprintln(os.Stderr, "read stdin:", err)
+// 		os.Exit(1)
+// 	}
+// }

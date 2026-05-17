@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/aszxqaz/model"
+	"github.com/aszxqaz/model/model"
 )
 
 type Config struct {
