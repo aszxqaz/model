@@ -4,13 +4,16 @@ import (
 	"fmt"
 
 	"github.com/aszxqaz/model/kline"
-	"github.com/aszxqaz/model/model"
 	"github.com/aszxqaz/model/model/calculator"
 	"github.com/aszxqaz/model/model/dynparam"
 )
 
 func main() {
-	tklines, _, err := kline.LoadKlines("C:/Users/Admin/Documents/binance/klines/train/*.csv")
+	load()
+}
+
+func save() {
+	tklines, _, err := kline.LoadKlines("C:/Users/Admin/Documents/binance/klines/work/*.csv")
 	if err != nil {
 		panic(err)
 	}
@@ -20,15 +23,66 @@ func main() {
 		DynamicParams: []calculator.DynamicParam{
 			{
 				Param: dynparam.NewVolume(dynparam.VolumeDynamicParamConfig{
-					WeightFunc: model.QuadraticWeight,
-					Period:     30,
+					Period: 300,
+				}),
+				Buckets: 32,
+			},
+			{
+				Param: dynparam.NewTaker(dynparam.TakerDynamicParamConfig{
+					Period: 300,
+				}),
+				Buckets: 32,
+			},
+		},
+	})
+
+	err = c.Save("calculator.gob")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func load() {
+
+	// c, err := calculator.NewFromFile("calculator.gob")
+	// if err != nil {
+	// 	panic(err)
+	// }
+
+	tklines, _, err := kline.LoadKlines("C:/Users/Admin/Documents/binance/klines/train/*.csv")
+	if err != nil {
+		panic(err)
+	}
+
+	// var (
+	// 	min float32 = 99999999
+	// 	max float32
+	// )
+
+	// for i := range tklines {
+	// 	if tklines[i].Close < min {
+	// 		min = tklines[i].Close
+	// 	}
+	// 	if tklines[i].Close > max {
+	// 		max = tklines[i].Close
+	// 	}
+	// }
+
+	// fmt.Println(min)
+	// fmt.Println(max)
+
+	c := calculator.New(calculator.Config{
+		Klines: tklines,
+		DynamicParams: []calculator.DynamicParam{
+			{
+				Param: dynparam.NewVolume(dynparam.VolumeDynamicParamConfig{
+					Period: 400,
 				}),
 				Buckets: 5,
 			},
 			{
 				Param: dynparam.NewTaker(dynparam.TakerDynamicParamConfig{
-					WeightFunc: model.QuadraticWeight,
-					Period:     30,
+					Period: 400,
 				}),
 				Buckets: 5,
 			},
@@ -40,27 +94,14 @@ func main() {
 		panic(err)
 	}
 
-	// now := time.Now()
-
-	// prob, err := c.CountProb(100, 30, wklines[:29])
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// fmt.Println("Probability", prob.Probability)
-	// fmt.Println("Frequency", prob.Frequency)
-	// fmt.Printf("Done in %d ms.\n", time.Since(now).Milliseconds())
-
-	// score := 0.0
-	target := 50
-	sec := 90
-	progress := 0
+	target := 10
+	sec := 30
 
 	fmt.Println("Starting")
 	_ = wklines
 	work := wklines
 
-	cache := make(map[string][2]float64)
+	cache := make(map[string][2]float32)
 
 	for i := 0; i < len(work)-sec-1; i++ {
 		key, indeces, err := c.GetBuckets(target, sec, work[:i])
@@ -78,7 +119,9 @@ func main() {
 			cache[prob.Key] = ff
 		}
 
-		if work[i+sec].Close-work[i].Close >= float64(target) {
+		delta := work[i+sec].Close - work[i].Close
+
+		if target < 0 && delta < float32(target) || target > 0 && delta > float32(target) {
 			ff[0] += (1 - prob.Probability)
 		} else {
 			ff[0] -= prob.Probability
@@ -86,18 +129,28 @@ func main() {
 
 		ff[1]++
 		cache[prob.Key] = ff
-
-		if int(100*float64(i)/float64(len(work)-sec-1)) != progress {
-			progress = int(100 * float64(i) / float64(len(work)-sec-1))
-			fmt.Println(progress)
-		}
 	}
+
+	var (
+		sum   float32
+		count float32
+	)
 
 	for k, v := range cache {
 		if v[1] == 0 {
 			continue
 		}
+		sum += v[0]
+		count += v[1]
 
-		fmt.Printf("%s: %.2f, count = %.0f\n", k, v[0]/v[1], v[1])
+		fmt.Printf("%s: %.4f, count = %.0f\n", k, v[0]/v[1], v[1])
+	}
+
+	fmt.Printf("Average: %.4f", sum/count)
+
+	fmt.Println("Saving...")
+	err = c.Save("calculator.gob")
+	if err != nil {
+		panic(err)
 	}
 }

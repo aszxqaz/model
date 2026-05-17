@@ -1,11 +1,11 @@
 package model
 
 // type PreviousData struct {
-// 	Volume     float64
-// 	TakerShare float64
+// 	Volume     float32
+// 	TakerShare float32
 // }
 
-// func CalcPreviousAll(klines []kline.Kline, period int, wght func(i, n int) float64) []PreviousData {
+// func CalcPreviousAll(klines []kline.Kline, period int, wght func(i, n int) float32) []PreviousData {
 // 	data := make([]PreviousData, len(klines))
 
 // 	for k := period; k < len(klines); k++ {
@@ -15,13 +15,13 @@ package model
 // 	return data
 // }
 
-// func CalcPreviousSingle(klines []kline.Kline, wght func(i, n int) float64) PreviousData {
+// func CalcPreviousSingle(klines []kline.Kline, wght func(i, n int) float32) PreviousData {
 // 	var (
-// 		volume      float64
-// 		takerVolume float64
+// 		volume      float32
+// 		takerVolume float32
 // 	)
 
-// 	flen := float64(len(klines))
+// 	flen := float32(len(klines))
 
 // 	for i := range klines {
 // 		w := wght(i, len(klines))

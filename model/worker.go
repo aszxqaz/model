@@ -90,7 +90,7 @@ package model
 // 					p := CalculateProb(
 // 						klines,
 // 						conseq,
-// 						float64(target),
+// 						float32(target),
 // 						secs,
 // 						volumeSpan,
 // 						takerSpan,
@@ -109,10 +109,10 @@ package model
 // 	}
 // }
 
-// func fractionToByte(f float64) byte {
+// func fractionToByte(f float32) byte {
 // 	return byte(math.Round(f * 255))
 // }
 
-// func byteToFraction(b byte) float64 {
-// 	return float64(b) / 255
+// func byteToFraction(b byte) float32 {
+// 	return float32(b) / 255
 // }

@@ -47,10 +47,10 @@ package main
 // }
 
 // type Input struct {
-// 	Target  float64
+// 	Target  float32
 // 	Seconds int
-// 	Volume  float64
-// 	Taker   float64
+// 	Volume  float32
+// 	Taker   float32
 // }
 
 // func Run(params model.Params, doFunc func(input Input) error) {

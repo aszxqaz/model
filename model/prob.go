@@ -3,16 +3,16 @@ package model
 // func CalculateProb(
 // 	klines []kline.Kline,
 // 	previous []PreviousData,
-// 	target float64,
+// 	target float32,
 // 	secs int,
 // 	volumeSpan span.Span,
 // 	takerSpan span.Span,
 // 	previousPeriod int,
 // ) Prob {
 // 	var (
-// 		cases float64
-// 		hits  float64
-// 		total float64
+// 		cases float32
+// 		hits  float32
+// 		total float32
 // 	)
 
 // 	IterateWindow(secs, len(klines), previousPeriod, func(a, b int) {

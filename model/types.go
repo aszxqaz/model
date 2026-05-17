@@ -14,7 +14,7 @@ type Params struct {
 	PreviousPeriod int       `json:"previous_period"`
 	Volumes        span.Span `json:"volumes"`
 	Takers         span.Span `json:"takers"`
-	WeightFunc     func(i, n int) float64
+	WeightFunc     func(i, n int) float32
 }
 
 type Model struct {

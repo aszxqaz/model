@@ -2,11 +2,11 @@ package main
 
 import (
 	"fmt"
-	"math/rand/v2"
+	"math/rand"
 )
 
 const (
-	advantage float64 = 0
+	advantage float64 = 0.01
 )
 
 func main() {
@@ -14,7 +14,7 @@ func main() {
 
 	for range 1_000_000 {
 		var balance float64
-		for range 272 {
+		for range 10000 {
 			rnd1 := rand.Float64()
 			rnd2 := rand.Float64()
 			if rnd2+advantage > rnd1 {
@@ -24,7 +24,7 @@ func main() {
 			}
 		}
 
-		if balance >= 16.14 {
+		if balance >= 100 {
 			count++
 		}
 	}

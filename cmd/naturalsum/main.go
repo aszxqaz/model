@@ -8,7 +8,7 @@ import (
 
 func main() {
 	n := 31
-	sum := 0.0
+	var sum float64
 	for i := range n {
 		w := model.QuadraticWeight(i, n)
 		fmt.Printf("%.2f\n", w)

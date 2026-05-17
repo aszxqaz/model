@@ -23,9 +23,9 @@ func main() {
 
 	// period := 31
 
-	// var min float64 = 0.905
-	// var max float64 = 1
-	// var probe float64 = 0.954
+	// var min float32 = 0.905
+	// var max float32 = 1
+	// var probe float32 = 0.954
 
 	// count := 0
 	// top := 0
@@ -33,14 +33,14 @@ func main() {
 
 	// model.IterateWindow(period, len(klines), 0, func(a, b int) {
 	// 	var (
-	// 		volume      float64
-	// 		takerVolume float64
+	// 		volume      float32
+	// 		takerVolume float32
 	// 	)
 
 	// 	for i := a; i < b; i++ {
 	// 		w := model.CubicWeight(i-a, period)
-	// 		volume += klines[i].Volume * w * float64(period)
-	// 		takerVolume += klines[i].TakerVolume * w * float64(period)
+	// 		volume += klines[i].Volume * w * float32(period)
+	// 		takerVolume += klines[i].TakerVolume * w * float32(period)
 	// 	}
 
 	// 	ratio := takerVolume / volume
@@ -59,7 +59,7 @@ func main() {
 	// fmt.Println("top", top)
 	// fmt.Println("bottom", bottom)
 
-	// fmt.Println(float64(top) / float64(bottom))
+	// fmt.Println(float32(top) / float32(bottom))
 
 	slices.SortFunc(klines, func(a, b kline.Kline) int {
 		if a.Volume > b.Volume {

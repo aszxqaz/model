@@ -1,11 +1,11 @@
 package model
 
 // type Prob struct {
-// 	Probability float64
-// 	Frequency   float64
+// 	Probability float32
+// 	Frequency   float32
 // }
 
-// func (m *Model) GetProbability(secs int, target int, volume float64, taker float64) (*Prob, error) {
+// func (m *Model) GetProbability(secs int, target int, volume float32, taker float32) (*Prob, error) {
 // 	if secs < m.Params.SecondsMin || secs > m.Params.SecondsMax {
 // 		msg := fmt.Sprintf("seconds out of range %d..%d", m.Params.SecondsMin, m.Params.SecondsMax)
 // 		return nil, errors.New(msg)

@@ -1,39 +1,44 @@
 package dynparam
 
 import (
+	"encoding/gob"
+
 	"github.com/aszxqaz/model/kline"
 	"github.com/aszxqaz/model/model"
 )
 
+func init() {
+	gob.Register(TakerDynamicParam{})
+}
+
 type TakerDynamicParamConfig struct {
-	WeightFunc model.WeightFunc
-	Period     int
+	Period int
 }
 
 type TakerDynamicParam struct {
-	config TakerDynamicParamConfig
+	Config TakerDynamicParamConfig
 }
 
 func NewTaker(config TakerDynamicParamConfig) DynamicParam {
-	return &TakerDynamicParam{
-		config: config,
+	return TakerDynamicParam{
+		Config: config,
 	}
 }
 
-func (v *TakerDynamicParam) Evaluate(klines []kline.Kline) (float64, bool) {
-	if len(klines) < v.config.Period {
+func (v TakerDynamicParam) Evaluate(klines []kline.Kline) (float32, bool) {
+	if len(klines) < v.Config.Period {
 		return 0, false
 	}
 
 	var (
-		takerVolume float64
-		volume      float64
+		takerVolume float32
+		volume      float32
 	)
 
-	start := len(klines) - v.config.Period
+	start := len(klines) - v.Config.Period
 
 	for i := start; i < len(klines); i++ {
-		w := v.config.WeightFunc(i-start, len(klines)-start)
+		w := float32(model.CubicWeight(i-start, len(klines)-start))
 		volume += klines[i].Volume * w
 		takerVolume += klines[i].TakerVolume * w
 

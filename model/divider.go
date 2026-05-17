@@ -1,6 +1,6 @@
 package model
 
-// func GetVolumesSpaced(previous []PreviousData, count int) []float64 {
+// func GetVolumesSpaced(previous []PreviousData, count int) []float32 {
 // 	slices.SortFunc(previous, func(a, b PreviousData) int {
 // 		if a.Volume > b.Volume {
 // 			return 1
@@ -10,7 +10,7 @@ package model
 
 // 	indeces := MakeRanges(len(previous), count)
 
-// 	volumes := []float64{}
+// 	volumes := []float32{}
 
 // 	for _, i := range indeces {
 // 		volumes = append(volumes, previous[i].Volume)
@@ -19,7 +19,7 @@ package model
 // 	return volumes
 // }
 
-// func GetTakersSpaced(previous []PreviousData, count int) []float64 {
+// func GetTakersSpaced(previous []PreviousData, count int) []float32 {
 // 	slices.SortFunc(previous, func(a, b PreviousData) int {
 // 		if a.TakerShare > b.TakerShare {
 // 			return 1
@@ -29,7 +29,7 @@ package model
 
 // 	indeces := MakeRanges(len(previous), count)
 
-// 	takers := []float64{}
+// 	takers := []float32{}
 
 // 	for _, i := range indeces {
 // 		takers = append(takers, previous[i].TakerShare)
