@@ -37,7 +37,7 @@ func (v TakerVolumeDynamicParam) Evaluate(klines []kline.Kline) (float32, bool) 
 	start := len(klines) - v.Config.Period
 
 	for i := start; i < len(klines); i++ {
-		var w float32 = float32(model.CubicWeight(i-start, len(klines)-start))
+		var w float32 = float32(model.QuadraticWeight(i-start, len(klines)-start))
 		takerVolume += klines[i].TakerVolume * w
 
 	}

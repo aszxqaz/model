@@ -36,7 +36,7 @@ func (v VolumeDynamicParam) Evaluate(klines []kline.Kline) (float32, bool) {
 	start := len(klines) - v.Config.Period
 
 	for i := start; i < len(klines); i++ {
-		volume += klines[i].Volume * float32(model.CubicWeight(
+		volume += klines[i].Volume * float32(model.QuadraticWeight(
 			i-start,
 			len(klines)-start,
 		))
